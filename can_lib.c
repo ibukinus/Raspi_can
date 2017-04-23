@@ -88,11 +88,8 @@ int main(void)
 
     /* フィルタ設定 */
     struct can_filter rfilter[2];
-
-    rfilter[0].can_id   = 0x123;
-    rfilter[0].can_mask = CAN_SFF_MASK;
-    rfilter[1].can_id   = 0x200;
-    rfilter[1].can_mask = 0x700;
+    rfilter[0] = set_can_filter(0x123, CAN_SFF_MASK);
+    rfilter[1] = set_can_filter(0x200, 0x700);
 
     setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
