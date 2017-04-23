@@ -17,6 +17,8 @@ int can_init(void)
 {
     int sock;
     struct sockaddr_can addr;
+
+    // TODO:C99以降で発生するerror: storage size of ‘ifr’ isn’t knownエラーを解消する
     struct ifreq ifr;
 
     const char *ifname = "can0";
@@ -65,7 +67,18 @@ void can_read(int sock, struct can_frame* frame)
 }
 
 /* フレーム設定関数 */
-struct can_filter set_can_frame(int id, int dlc, char *data);
+struct can_frame set_can_frame(canid_t id, size_t dlc, char *data)
+{
+    size_t i;   //TODO:ifreqの問題が解決してからfor文に内包すること
+    struct can_frame temp;
+	temp.can_id  = id;
+	temp.can_dlc = dlc;
+    for (i = 0; i < dlc; i++) {
+        temp.data[i] = data[i];
+    }
+
+    return temp;
+}
 
 /* フィルタ設定関数 */
 struct can_filter set_can_filter(canid_t id, canid_t mask)
@@ -82,6 +95,7 @@ int main(void)
     int sock;
 	struct can_frame frame;
     int i;
+    char data[] = {0x11, 0x22};
 
     /* CANの初期化 */
     sock = can_init();
@@ -94,17 +108,16 @@ int main(void)
     setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
     /* データ送信 */
-	frame.can_id  = 0x123;
-	frame.can_dlc = 2;
-	frame.data[0] = 0x11;
-	frame.data[1] = 0x22;
+    frame = set_can_frame(0x123, 2, data);
+    can_send(sock, frame);
+    puts("データ送信完了");
 
-    /* can_send(sock, frame); */
     can_read(sock, &frame);
     for(i = 0; i < frame.can_dlc; i++){
         printf("%d ", frame.data[i]);
     }
     printf("\n");
+    puts("データ受信完了");
 
     return 0;
 }
