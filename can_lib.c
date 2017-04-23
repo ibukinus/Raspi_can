@@ -17,8 +17,6 @@ int can_init(void)
 {
     int sock;
     struct sockaddr_can addr;
-
-    // TODO:C99以降で発生するerror: storage size of ‘ifr’ isn’t knownエラーを解消する
     struct ifreq ifr;
 
     const char *ifname = "can0";
@@ -69,11 +67,10 @@ void can_read(int sock, struct can_frame* frame)
 /* フレーム設定関数 */
 struct can_frame set_can_frame(canid_t id, size_t dlc, char *data)
 {
-    size_t i;   //TODO:ifreqの問題が解決してからfor文に内包すること
     struct can_frame temp;
 	temp.can_id  = id;
 	temp.can_dlc = dlc;
-    for (i = 0; i < dlc; i++) {
+    for (size_t i = 0; i < dlc; i++) {
         temp.data[i] = data[i];
     }
 
