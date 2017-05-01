@@ -41,8 +41,14 @@ int can_init(void)
 }
 
 /* CANデータ送信関数 */
-void can_send(int sock, struct can_frame frame)
+void can_send(int sock, canid_t id, size_t dlc, char *data)
 {
+    struct can_frame frame;
+	frame.can_id  = id;
+	frame.can_dlc = dlc;
+    for (size_t i = 0; i < dlc; i++) {
+        frame.data[i] = data[i];
+    }
     write(sock, &frame, sizeof(struct can_frame));
 }
 
@@ -62,19 +68,6 @@ void can_read(int sock, struct can_frame* frame)
         fprintf(stderr, "read: incomplete CAN frame\n");
         exit(1);
     }
-}
-
-/* フレーム設定関数 */
-struct can_frame set_can_frame(canid_t id, size_t dlc, char *data)
-{
-    struct can_frame temp;
-	temp.can_id  = id;
-	temp.can_dlc = dlc;
-    for (size_t i = 0; i < dlc; i++) {
-        temp.data[i] = data[i];
-    }
-
-    return temp;
 }
 
 /* フィルタ設定関数 */
@@ -105,8 +98,7 @@ int main(void)
     setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
     /* データ送信 */
-    frame = set_can_frame(0x123, 2, data);
-    can_send(sock, frame);
+    can_send(sock, 0x123, 2, data);
     puts("データ送信完了");
 
     can_read(sock, &frame);
