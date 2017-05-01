@@ -53,11 +53,12 @@ void can_send(int sock, canid_t id, size_t dlc, char *data)
 }
 
 /* CANデータ受信関数 */
-void can_read(int sock, struct can_frame* frame)
+struct can_frame can_read(int sock)
 {
+    struct can_frame frame;
     int nbytes;
 
-    nbytes =read(sock, frame, sizeof(struct can_frame));
+    nbytes = read(sock, &frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
         perror("can raw socket read");
@@ -68,6 +69,7 @@ void can_read(int sock, struct can_frame* frame)
         fprintf(stderr, "read: incomplete CAN frame\n");
         exit(1);
     }
+    return frame;
 }
 
 /* フィルタ設定関数 */
@@ -101,7 +103,7 @@ int main(void)
     can_send(sock, 0x123, 2, data);
     puts("データ送信完了");
 
-    can_read(sock, &frame);
+    frame = can_read(sock);
     for(i = 0; i < frame.can_dlc; i++){
         printf("%d ", frame.data[i]);
     }
