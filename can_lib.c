@@ -13,8 +13,7 @@
 #include <linux/can/raw.h>
 
 /* CAN初期化関数 */
-int can_init(void)
-{
+int can_init(void) {
     int sock;
     struct sockaddr_can addr;
     struct ifreq ifr;
@@ -41,8 +40,7 @@ int can_init(void)
 }
 
 /* CANデータ送信関数 */
-void can_send(int sock, canid_t id, size_t dlc, char *data)
-{
+void can_send(int sock, canid_t id, size_t dlc, char *data) {
     struct can_frame frame;
 	frame.can_id  = id;
 	frame.can_dlc = dlc;
@@ -53,8 +51,7 @@ void can_send(int sock, canid_t id, size_t dlc, char *data)
 }
 
 /* CANデータ受信関数 */
-struct can_frame can_read(int sock)
-{
+struct can_frame can_read(int sock) {
     struct can_frame frame;
     int nbytes;
 
@@ -73,8 +70,7 @@ struct can_frame can_read(int sock)
 }
 
 /* フィルタ設定関数 */
-struct can_filter set_can_filter(canid_t id, canid_t mask)
-{
+struct can_filter set_can_filter(canid_t id, canid_t mask) {
     struct can_filter temp;
     temp.can_id = id;
     temp.can_mask = mask;
@@ -103,8 +99,7 @@ long btol(char *src, size_t size) {
     return data;
 }
 
-int main(void)
-{
+int main(void) {
     int sock;
 	struct can_frame frame;
     int i;
