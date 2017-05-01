@@ -82,6 +82,27 @@ struct can_filter set_can_filter(canid_t id, canid_t mask)
     return temp;
 }
 
+// 整数型からバイト列への変換関数
+void itob(int src, char *byte) {
+    memcpy(byte, &src, sizeof(src));
+}
+void ltob(long src, char *byte) {
+    memcpy(byte, &src, sizeof(src));
+}
+
+// バイト列から整数型への変換関数
+int btoi(char *src, size_t size) {
+    int data = 0x00;
+    memcpy(&data, src, size);
+    return data;
+}
+
+long btol(char *src, size_t size) {
+    int data = 0x00;
+    memcpy(&data, src, size);
+    return data;
+}
+
 int main(void)
 {
     int sock;
