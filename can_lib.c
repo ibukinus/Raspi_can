@@ -72,12 +72,12 @@ struct can_frame can_read(int sock) {
     nbytes = read(sock, &frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
-        perror("can raw socket read");
+        perror("受信失敗");
         exit(1);
     }
 
     if (nbytes < (signed)sizeof(struct can_frame)) {
-        fprintf(stderr, "read: incomplete CAN frame\n");
+        fprintf(stderr, "受信未完了\n");
         exit(1);
     }
     return frame;
