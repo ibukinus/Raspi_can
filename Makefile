@@ -1,13 +1,29 @@
 # Makefile
 
-all: sample.c can_lib.o
-	gcc -Wall -O2 -o sample sample.c can_lib.o
+# プログラム名とオブジェクトファイル名
+PROGRAM = sample
+OBJS = sample.o can_lib.o
 
-sample.o: sample.c
-	gcc -c -std=gnu11 sample.c
+# コンパイラの定義
+CC = gcc
+CFLAGS = -Wall -O2 -std=gnu11
 
-can_lib.o: can_lib.c
-	gcc -c -std=gnu11 can_lib.c
+# 拡張子の定義
+.SUFFIXES: .c .o
 
+# プライマリターゲット
+$(PROGRAM): $(OBJS)
+	$(CC) -o $(PROGRAM) $(OBJS)
+
+# サフィックスルール
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+# 依存ヘッダファイルの設定
+sample.o: can_lib.h
+can_lib.o: can_lib.h
+
+# ファイル削除ターゲット
+.PHONY: clean
 clean:
-	rm -f sample sample.o can_lib.o
+	$(RM) $(PROGRAM) $(OBJS)
