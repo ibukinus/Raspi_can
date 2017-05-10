@@ -44,12 +44,24 @@ int can_init(void) {
 /* CANデータ送信関数 */
 void can_send(int sock, canid_t id, size_t dlc, char *data) {
     struct can_frame frame;
+    int nbytes;
 	frame.can_id  = id;
 	frame.can_dlc = dlc;
     for (size_t i = 0; i < dlc; i++) {
         frame.data[i] = data[i];
     }
-    write(sock, &frame, sizeof(struct can_frame));
+    nbytes = write(sock, &frame, sizeof(struct can_frame));
+
+    if (nbytes < 0) {
+        perror("送信失敗");
+        exit(1);
+    }
+
+    if (nbytes < (signed)sizeof(struct can_frame)) {
+        fprintf(stderr, "送信未完了\n");
+        exit(1);
+    }
+
 }
 
 /* CANデータ受信関数 */
