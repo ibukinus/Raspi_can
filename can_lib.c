@@ -22,21 +22,21 @@ int can_init(void) {
 
     const char *ifname = "can0";
 
-	if((sock = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0){
-		perror("ソケット作成に失敗");
+    if((sock = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0){
+        perror("ソケット作成に失敗");
         exit(1);
-	}
+    }
 
-	strcpy(ifr.ifr_name, ifname);
-	ioctl(sock, SIOCGIFINDEX, &ifr);
+    strcpy(ifr.ifr_name, ifname);
+    ioctl(sock, SIOCGIFINDEX, &ifr);
 
-	addr.can_family  = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
+    addr.can_family  = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
 
-	if(bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0){
-		perror("ソケットのバインドに失敗");
+    if(bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0){
+        perror("ソケットのバインドに失敗");
         exit(1);
-	}
+    }
 
     return sock;
 }
@@ -45,8 +45,8 @@ int can_init(void) {
 void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
     struct can_frame frame;
     long nbytes;
-	frame.can_id  = id;
-	frame.can_dlc = dlc;
+    frame.can_id  = id;
+    frame.can_dlc = dlc;
     for (size_t i = 0; i < dlc; i++) {
         frame.data[i] = data[i];
     }
