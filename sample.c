@@ -10,7 +10,7 @@ int main(void) {
     int sock;
 	struct can_frame frame;
     int i;
-    char data[] = {0x11, 0x22};
+    unsigned char data[] = {0x11, 0x22};
 
     /* CANの初期化 */
     sock = can_init();
