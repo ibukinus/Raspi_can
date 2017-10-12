@@ -22,7 +22,7 @@ int can_init(void);
 // 引数  : 第1引数 ソケット、第2引数 送信先id、第3引数 データサイズ、第4引数 データバイト
 // 戻り値 : なし
 // =============================================================================
-void can_send(int sock, canid_t id, size_t dlc, char *data);
+void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data);
 
 // =============================================================================
 // 関数名 : can_read

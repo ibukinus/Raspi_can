@@ -42,9 +42,9 @@ int can_init(void) {
 }
 
 /* CANデータ送信関数 */
-void can_send(int sock, canid_t id, size_t dlc, char *data) {
+void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
     struct can_frame frame;
-    int nbytes;
+    long nbytes;
 	frame.can_id  = id;
 	frame.can_dlc = dlc;
     for (size_t i = 0; i < dlc; i++) {
@@ -67,7 +67,7 @@ void can_send(int sock, canid_t id, size_t dlc, char *data) {
 /* CANデータ受信関数 */
 struct can_frame can_read(int sock) {
     struct can_frame frame;
-    int nbytes;
+    long nbytes;
 
     nbytes = read(sock, &frame, sizeof(struct can_frame));
 
