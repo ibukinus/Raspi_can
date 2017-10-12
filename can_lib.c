@@ -23,7 +23,7 @@ int can_init(void) {
     const char *ifname = "can0";
 
     if((sock = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0){
-        perror("ソケット作成に失敗");
+        perror("socket");
         exit(1);
     }
 
@@ -34,7 +34,7 @@ int can_init(void) {
     addr.can_ifindex = ifr.ifr_ifindex;
 
     if(bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0){
-        perror("ソケットのバインドに失敗");
+        perror("bind");
         exit(1);
     }
 
@@ -53,7 +53,7 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
     nbytes = write(sock, &frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
-        perror("送信失敗");
+        perror("send");
         exit(1);
     }
 
@@ -72,7 +72,7 @@ struct can_frame can_read(int sock) {
     nbytes = read(sock, &frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
-        perror("受信失敗");
+        perror("read");
         exit(1);
     }
 
