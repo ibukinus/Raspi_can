@@ -6,7 +6,7 @@ OBJS = sample.o can_lib.o
 
 # コンパイラの定義
 CC = gcc
-CFLAGS = -Wall -O2 -std=gnu11
+CFLAGS = -Wall -O2 -std=c11
 
 # 拡張子の定義
 .SUFFIXES: .c .o
