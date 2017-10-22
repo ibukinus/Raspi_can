@@ -4,110 +4,129 @@
 #include <unistd.h>
 #include <string.h>
 
-#include <net/if.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <linux/if.h>
+#include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/select.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
+#include "can_lib.h"
+
 /* CAN初期化関数 */
-int can_init(void)
-{
+int can_init(void) {
     int sock;
     struct sockaddr_can addr;
     struct ifreq ifr;
 
     const char *ifname = "can0";
 
-	if((sock = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0){
-		perror("ソケット作成に失敗");
+    if((sock = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0){
+        perror("socket");
         exit(1);
-	}
+    }
 
-	strcpy(ifr.ifr_name, ifname);
-	ioctl(sock, SIOCGIFINDEX, &ifr);
+    strcpy(ifr.ifr_name, ifname);
+    ioctl(sock, SIOCGIFINDEX, &ifr);
 
-	addr.can_family  = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
+    addr.can_family  = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
 
-	if(bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0){
-		perror("ソケットのバインドに失敗");
+    if(bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0){
+        perror("bind");
         exit(1);
-	}
+    }
 
     return sock;
 }
 
 /* CANデータ送信関数 */
-void can_send(int sock, struct can_frame frame)
-{
-    write(sock, &frame, sizeof(struct can_frame));
-}
-
-/* CANデータ受信関数 */
-void can_read(int sock, struct can_frame* frame)
-{
-    int nbytes;
-
-    nbytes =read(sock, frame, sizeof(struct can_frame));
+void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
+    struct can_frame frame;
+    long nbytes;
+    frame.can_id  = id;
+    frame.can_dlc = dlc;
+    for (size_t i = 0; i < dlc; i++) {
+        frame.data[i] = data[i];
+    }
+    nbytes = write(sock, &frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
-        perror("can raw socket read");
+        perror("send");
         exit(1);
     }
 
     if (nbytes < (signed)sizeof(struct can_frame)) {
-        fprintf(stderr, "read: incomplete CAN frame\n");
+        fprintf(stderr, "送信未完了\n");
         exit(1);
     }
+
 }
 
-/* フレーム設定関数 */
-struct can_filter set_can_frame(int id, int dlc, char *data);
+/* CANデータ受信関数 */
+int can_read(int sock, struct can_frame *frame) {
+    fd_set fds, readfds;
+    struct timeval tv;
+    long nbytes;
+    int n;
+
+    tv.tv_sec = 10;
+    tv.tv_usec = 0;
+
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
+
+    while (1) {
+        // タイムアウト処理
+        memcpy(&fds, &readfds, sizeof(fd_set));
+        n = select(sock + 1, &fds, NULL, NULL, &tv);
+        if (!n) {
+            printf("受信タイムアウト\n");
+            break;
+        }
+
+        if (FD_ISSET(sock, &fds)) { // 受信確認
+            nbytes = read(sock, frame, sizeof(struct can_frame));
+            if (nbytes < 0) {
+                perror("read");
+                exit(1);
+            }
+        
+            if (nbytes < (signed)sizeof(struct can_frame)) {
+                fprintf(stderr, "受信未完了\n");
+                exit(1);
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
 
 /* フィルタ設定関数 */
-struct can_filter set_can_filter(canid_t id, canid_t mask)
-{
-    struct can_filter temp;
-    temp.can_id = id;
-    temp.can_mask = mask;
-
-    return temp;
+void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask) {
+    filter->can_id = id;
+    filter->can_mask = mask;
 }
 
-int main(void)
-{
-    int sock;
-	struct can_frame frame;
-    int i;
+// 整数型からバイト列への変換関数
+void itob(int src, char *byte) {
+    memcpy(byte, &src, sizeof(src));
+}
+void ltob(long src, char *byte) {
+    memcpy(byte, &src, sizeof(src));
+}
 
-    /* CANの初期化 */
-    sock = can_init();
+// バイト列から整数型への変換関数
+int btoi(char *src, size_t size) {
+    int data = 0x00;
+    memcpy(&data, src, size);
+    return data;
+}
 
-    /* フィルタ設定 */
-    struct can_filter rfilter[2];
-
-    rfilter[0].can_id   = 0x123;
-    rfilter[0].can_mask = CAN_SFF_MASK;
-    rfilter[1].can_id   = 0x200;
-    rfilter[1].can_mask = 0x700;
-
-    setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
-
-    /* データ送信 */
-	frame.can_id  = 0x123;
-	frame.can_dlc = 2;
-	frame.data[0] = 0x11;
-	frame.data[1] = 0x22;
-
-    /* can_send(sock, frame); */
-    can_read(sock, &frame);
-    for(i = 0; i < frame.can_dlc; i++){
-        printf("%d ", frame.data[i]);
-    }
-    printf("\n");
-
-    return 0;
+long btol(char *src, size_t size) {
+    int data = 0x00;
+    memcpy(&data, src, size);
+    return data;
 }

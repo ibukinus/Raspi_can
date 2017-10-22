@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "can_lib.h": "c",
+        "ioctl.h": "c",
+        "raw.h": "c",
+        "socket.h": "c",
+        "can.h": "c",
+        "types.h": "c",
+        "if.h": "c"
+    }
+}
