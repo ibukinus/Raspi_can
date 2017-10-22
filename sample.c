@@ -18,8 +18,8 @@ int main(void) {
 
     /* フィルタ設定 */
     struct can_filter rfilter[2];
-    rfilter[0] = set_can_filter(0x123, CAN_SFF_MASK);
-    rfilter[1] = set_can_filter(0x200, 0x700);
+    set_can_filter(&rfilter[0], 0x123, CAN_SFF_MASK);
+    set_can_filter(&rfilter[1], 0x200, 0x700);
 
     setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
@@ -27,7 +27,7 @@ int main(void) {
     can_send(sock, 0x123, 2, data);
     puts("データ送信完了");
 
-    frame = can_read(sock);
+    can_read(sock, &frame);
     for(i = 0; i < frame.can_dlc; i++){
         printf("%d ", frame.data[i]);
     }

@@ -27,18 +27,18 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data);
 // =============================================================================
 // 関数名 : can_read
 // 機能  : データ受信処理
-// 引数  : ソケット
-// 戻り値 : can_frame構造体
+// 引数  : 第1引数ソケット、第2引数 can_frame構造体
+// 戻り値 : なし
 // =============================================================================
-struct can_frame can_read(int sock);
+void can_read(int sock, struct can_frame *frame);
 
 // =============================================================================
 // 関数名 : set_can_filter
 // 機能  : 受信フィルタ設定関数
-// 引数  : 第1引数 受信対象id、第2引数 受信idマスク値
-// 戻り値 : can_filter構造体
+// 引数  : 第1引数 can_filter構造体、第2引数 受信対象id、第3引数 受信idマスク値
+// 戻り値 : なし
 // =============================================================================
-struct can_filter set_can_filter(canid_t id, canid_t mask);
+void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask);
 
 // =============================================================================
 // 関数名 : itob ltob

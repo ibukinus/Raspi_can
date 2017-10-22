@@ -65,11 +65,10 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
 }
 
 /* CANデータ受信関数 */
-struct can_frame can_read(int sock) {
-    struct can_frame frame;
+void can_read(int sock, struct can_frame *frame) {
     long nbytes;
 
-    nbytes = read(sock, &frame, sizeof(struct can_frame));
+    nbytes = read(sock, frame, sizeof(struct can_frame));
 
     if (nbytes < 0) {
         perror("read");
@@ -80,16 +79,12 @@ struct can_frame can_read(int sock) {
         fprintf(stderr, "受信未完了\n");
         exit(1);
     }
-    return frame;
 }
 
 /* フィルタ設定関数 */
-struct can_filter set_can_filter(canid_t id, canid_t mask) {
-    struct can_filter temp;
-    temp.can_id = id;
-    temp.can_mask = mask;
-
-    return temp;
+void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask) {
+    filter->can_id = id;
+    filter->can_mask = mask;
 }
 
 // 整数型からバイト列への変換関数
