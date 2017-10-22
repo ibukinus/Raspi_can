@@ -8,6 +8,7 @@
 #include <linux/if.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/select.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -65,20 +66,42 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
 }
 
 /* CANデータ受信関数 */
-void can_read(int sock, struct can_frame *frame) {
+int can_read(int sock, struct can_frame *frame) {
+    fd_set fds, readfds;
+    struct timeval tv;
     long nbytes;
+    int n;
 
-    nbytes = read(sock, frame, sizeof(struct can_frame));
+    tv.tv_sec = 10;
+    tv.tv_usec = 0;
 
-    if (nbytes < 0) {
-        perror("read");
-        exit(1);
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
+
+    while (1) {
+        // タイムアウト処理
+        memcpy(&fds, &readfds, sizeof(fd_set));
+        n = select(sock + 1, &fds, NULL, NULL, &tv);
+        if (!n) {
+            printf("受信タイムアウト\n");
+            break;
+        }
+
+        if (FD_ISSET(sock, &fds)) { // 受信確認
+            nbytes = read(sock, frame, sizeof(struct can_frame));
+            if (nbytes < 0) {
+                perror("read");
+                exit(1);
+            }
+        
+            if (nbytes < (signed)sizeof(struct can_frame)) {
+                fprintf(stderr, "受信未完了\n");
+                exit(1);
+            }
+            return 0;
+        }
     }
-
-    if (nbytes < (signed)sizeof(struct can_frame)) {
-        fprintf(stderr, "受信未完了\n");
-        exit(1);
-    }
+    return 1;
 }
 
 /* フィルタ設定関数 */

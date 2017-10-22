@@ -28,9 +28,9 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data);
 // 関数名 : can_read
 // 機能  : データ受信処理
 // 引数  : 第1引数ソケット、第2引数 can_frame構造体
-// 戻り値 : なし
+// 戻り値 : 0 正常受信完了、1 タイムアウト
 // =============================================================================
-void can_read(int sock, struct can_frame *frame);
+int can_read(int sock, struct can_frame *frame);
 
 // =============================================================================
 // 関数名 : set_can_filter

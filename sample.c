@@ -9,7 +9,7 @@
 
 int main(void) {
     int sock;
-	struct can_frame frame;
+    struct can_frame frame;
     int i;
     unsigned char data[] = {0x11, 0x22};
 
