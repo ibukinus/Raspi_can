@@ -46,11 +46,11 @@ int can_init(void) {
 void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   struct can_frame frame;
   long             nbytes;
+  
   frame.can_id  = id;
   frame.can_dlc = dlc;
-  for (size_t i = 0; i < dlc; i++) {
-    frame.data[i] = data[i];
-  }
+  memcpy(frame.data, data, dlc);
+
   nbytes = write(sock, &frame, sizeof(struct can_frame));
 
   if (nbytes < 0) {
