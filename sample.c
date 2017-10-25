@@ -10,10 +10,10 @@
 #include "can_lib.h"
 
 int main(void) {
-  int sock;
+  int              sock;
   struct can_frame frame;
-  int i;
-  unsigned char data[] = {0x11, 0x22};
+  int              i;
+  unsigned char    data[] = {0x11, 0x22};
 
   /* CANの初期化 */
   sock = can_init();

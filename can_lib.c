@@ -17,9 +17,9 @@
 
 /* CAN初期化関数 */
 int can_init(void) {
-  int sock;
+  int                 sock;
   struct sockaddr_can addr;
-  struct ifreq ifr;
+  struct ifreq        ifr;
 
   const char *ifname = "can0";
 
@@ -31,7 +31,7 @@ int can_init(void) {
   strcpy(ifr.ifr_name, ifname);
   ioctl(sock, SIOCGIFINDEX, &ifr);
 
-  addr.can_family = AF_CAN;
+  addr.can_family  = AF_CAN;
   addr.can_ifindex = ifr.ifr_ifindex;
 
   if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
@@ -45,8 +45,8 @@ int can_init(void) {
 /* CANデータ送信関数 */
 void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   struct can_frame frame;
-  long nbytes;
-  frame.can_id = id;
+  long             nbytes;
+  frame.can_id  = id;
   frame.can_dlc = dlc;
   for (size_t i = 0; i < dlc; i++) {
     frame.data[i] = data[i];
@@ -66,12 +66,12 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
 
 /* CANデータ受信関数 */
 int can_read(int sock, struct can_frame *frame) {
-  fd_set fds, readfds;
+  fd_set         fds, readfds;
   struct timeval tv;
-  long nbytes;
-  int n;
+  long           nbytes;
+  int            n;
 
-  tv.tv_sec = 10;
+  tv.tv_sec  = 10;
   tv.tv_usec = 0;
 
   FD_ZERO(&readfds);
@@ -86,7 +86,7 @@ int can_read(int sock, struct can_frame *frame) {
       break;
     }
 
-    if (FD_ISSET(sock, &fds)) { // 受信確認
+    if (FD_ISSET(sock, &fds)) {  // 受信確認
       nbytes = read(sock, frame, sizeof(struct can_frame));
       if (nbytes < 0) {
         perror("read");
@@ -105,7 +105,7 @@ int can_read(int sock, struct can_frame *frame) {
 
 /* フィルタ設定関数 */
 void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask) {
-  filter->can_id = id;
+  filter->can_id   = id;
   filter->can_mask = mask;
 }
 
