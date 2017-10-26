@@ -46,7 +46,7 @@ int can_init(void) {
 void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   struct can_frame frame;
   long             nbytes;
-  
+
   frame.can_id  = id;
   frame.can_dlc = dlc;
   memcpy(frame.data, data, dlc);
@@ -65,7 +65,7 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
 }
 
 /* CANデータ受信関数 */
-int can_read(int sock, struct can_frame *frame) {
+int can_read(rcv_frame_t *rcv) {
   fd_set         fds, readfds;
   struct timeval tv;
   long           nbytes;
@@ -75,19 +75,19 @@ int can_read(int sock, struct can_frame *frame) {
   tv.tv_usec = 0;
 
   FD_ZERO(&readfds);
-  FD_SET(sock, &readfds);
+  FD_SET(rcv->socket, &readfds);
 
   while (1) {
     // タイムアウト処理
     memcpy(&fds, &readfds, sizeof(fd_set));
-    n = select(sock + 1, &fds, NULL, NULL, &tv);
+    n = select(rcv->socket + 1, &fds, NULL, NULL, &tv);
     if (!n) {
       printf("受信タイムアウト\n");
       break;
     }
 
-    if (FD_ISSET(sock, &fds)) {  // 受信確認
-      nbytes = read(sock, frame, sizeof(struct can_frame));
+    if (FD_ISSET(rcv->socket, &fds)) {  // 受信確認
+      nbytes = read(rcv->socket, &rcv->frame, sizeof(struct can_frame));
       if (nbytes < 0) {
         perror("read");
         exit(1);

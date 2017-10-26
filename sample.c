@@ -10,10 +10,10 @@
 #include "can_lib.h"
 
 int main(void) {
-  int              sock;
-  struct can_frame frame;
-  int              i;
-  unsigned char    data[] = {0x11, 0x22};
+  int           sock;
+  rcv_frame_t   rcv;
+  int           i;
+  unsigned char data[] = {0x11, 0x22};
 
   /* CANの初期化 */
   sock = can_init();
@@ -26,12 +26,13 @@ int main(void) {
   setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
   /* データ送信 */
+  rcv.socket = sock;
   can_send(sock, 0x123, 2, data);
   puts("データ送信完了");
 
-  can_read(sock, &frame);
-  for (i = 0; i < frame.can_dlc; i++) {
-    printf("%d ", frame.data[i]);
+  can_read(&rcv);
+  for (i = 0; i < rcv.frame.can_dlc; i++) {
+    printf("%d ", rcv.frame.data[i]);
   }
   printf("\n");
   puts("データ受信完了");
