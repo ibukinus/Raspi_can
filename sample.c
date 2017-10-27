@@ -1,4 +1,5 @@
 // sample.c
+#include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -11,10 +12,12 @@
 #include "can_lib.h"
 
 int main(void) {
+  int           handle;
+  pthread_t     id;
   int           sock;
   rcv_frame_t   rcv;
-  int           i;
-  unsigned char data[] = {0x11, 0x22};
+  int           rcv_status = 0;
+  unsigned char data[]     = {0x11, 0x22};
 
   /* CANの初期化 */
   sock = can_init();
@@ -26,13 +29,25 @@ int main(void) {
 
   setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
-  /* データ送信 */
+  // データ受信
   rcv.socket = sock;
+  handle     = pthread_create(&id, NULL, (void *(*)(void *))can_read, &rcv);
+  if (handle) {
+    perror("pthread_create");
+    return 1;
+  }
+
+  /* データ送信 */
   can_send(sock, 0x123, 2, data);
   puts("データ送信完了");
 
-  can_read(&rcv);
-  for (i = 0; i < rcv.frame.can_dlc; i++) {
+  pthread_join(id, (void *)&rcv_status);
+  if (rcv_status) {
+    puts("受信タイムアウト");
+    return 1;
+  }
+
+  for (int i = 0; i < rcv.frame.can_dlc; i++) {
     printf("%d ", rcv.frame.data[i]);
   }
   printf("\n");
