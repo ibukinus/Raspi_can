@@ -1,5 +1,6 @@
 // sample.c
 #include <stdio.h>
+#include <unistd.h>
 
 #include <sys/socket.h>
 
@@ -36,6 +37,8 @@ int main(void) {
   }
   printf("\n");
   puts("データ受信完了");
+
+  close(sock);
 
   return 0;
 }
