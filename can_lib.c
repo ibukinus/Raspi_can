@@ -69,7 +69,7 @@ int can_read(rcv_frame_t *rcv) {
   fd_set         fds, readfds;
   struct timeval tv;
   long           nbytes;
-  int            n;
+  int            rcv_timer;
 
   tv.tv_sec  = 10;
   tv.tv_usec = 0;
@@ -80,11 +80,8 @@ int can_read(rcv_frame_t *rcv) {
   while (1) {
     // タイムアウト処理
     memcpy(&fds, &readfds, sizeof(fd_set));
-    n = select(rcv->socket + 1, &fds, NULL, NULL, &tv);
-    if (!n) {
-      printf("受信タイムアウト\n");
-      break;
-    }
+    rcv_timer = select(rcv->socket + 1, &fds, NULL, NULL, &tv);
+    if (!rcv_timer) break;  // タイムアウト
 
     if (FD_ISSET(rcv->socket, &fds)) {  // 受信確認
       nbytes = read(rcv->socket, &rcv->frame, sizeof(struct can_frame));
