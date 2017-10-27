@@ -19,10 +19,10 @@ int main(void) {
   int           rcv_status = 0;
   unsigned char data[]     = {0x11, 0x22};
 
-  /* CANの初期化 */
+  // CANの初期化
   sock = can_init();
 
-  /* フィルタ設定 */
+  // フィルタ設定
   struct can_filter rfilter[2];
   set_can_filter(&rfilter[0], 0x123, CAN_SFF_MASK);
   set_can_filter(&rfilter[1], 0x200, 0x700);
@@ -37,7 +37,7 @@ int main(void) {
     return 1;
   }
 
-  /* データ送信 */
+  // データ送信
   can_send(sock, 0x123, 2, data);
   puts("データ送信完了");
 

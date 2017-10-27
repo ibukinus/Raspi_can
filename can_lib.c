@@ -15,7 +15,7 @@
 
 #include "can_lib.h"
 
-/* CAN初期化関数 */
+// CAN初期化関数
 int can_init(void) {
   int                 sock;
   struct sockaddr_can addr;
@@ -42,7 +42,7 @@ int can_init(void) {
   return sock;
 }
 
-/* CANデータ送信関数 */
+//　CANデータ送信関数
 void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   struct can_frame frame;
   long             nbytes;
@@ -64,7 +64,7 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   }
 }
 
-/* CANデータ受信関数 */
+// CANデータ受信関数
 int can_read(rcv_frame_t *rcv) {
   fd_set         fds, readfds;
   struct timeval tv;
@@ -100,7 +100,7 @@ int can_read(rcv_frame_t *rcv) {
   return 1;
 }
 
-/* フィルタ設定関数 */
+// フィルタ設定関数
 void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask) {
   filter->can_id   = id;
   filter->can_mask = mask;

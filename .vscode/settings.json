@@ -6,6 +6,7 @@
         "socket.h": "c",
         "can.h": "c",
         "types.h": "c",
-        "if.h": "c"
+        "if.h": "c",
+        "unistd.h": "c"
     }
 }
