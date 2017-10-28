@@ -1,4 +1,7 @@
-/* CAN通信ライブラリ */
+/**
+ * @file  can_lib.c
+ * @brief CAN通信ライブラリ
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

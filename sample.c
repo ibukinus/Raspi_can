@@ -1,4 +1,7 @@
-// sample.c
+/**
+ * @file  sample.c
+ * @brief CAN通信ライブラリの運用例
+ */
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
