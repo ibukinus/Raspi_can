@@ -108,4 +108,3 @@ void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask) {
   filter->can_id   = id;
   filter->can_mask = mask;
 }
-
