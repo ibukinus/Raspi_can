@@ -1,4 +1,7 @@
-/* CAN通信ライブラリ */
+/**
+ * @file  can_lib.c
+ * @brief CAN通信ライブラリ
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +18,7 @@
 
 #include "can_lib.h"
 
-/* CAN初期化関数 */
+// CAN初期化関数
 int can_init(void) {
   int                 sock;
   struct sockaddr_can addr;
@@ -42,15 +45,15 @@ int can_init(void) {
   return sock;
 }
 
-/* CANデータ送信関数 */
+//　CANデータ送信関数
 void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   struct can_frame frame;
   long             nbytes;
+
   frame.can_id  = id;
   frame.can_dlc = dlc;
-  for (size_t i = 0; i < dlc; i++) {
-    frame.data[i] = data[i];
-  }
+  memcpy(frame.data, data, dlc);
+
   nbytes = write(sock, &frame, sizeof(struct can_frame));
 
   if (nbytes < 0) {
@@ -64,30 +67,27 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   }
 }
 
-/* CANデータ受信関数 */
-int can_read(int sock, struct can_frame *frame) {
+// CANデータ受信関数
+int can_read(rcv_frame_t *rcv) {
   fd_set         fds, readfds;
   struct timeval tv;
   long           nbytes;
-  int            n;
+  int            rcv_timer;
 
   tv.tv_sec  = 10;
   tv.tv_usec = 0;
 
   FD_ZERO(&readfds);
-  FD_SET(sock, &readfds);
+  FD_SET(rcv->socket, &readfds);
 
   while (1) {
     // タイムアウト処理
     memcpy(&fds, &readfds, sizeof(fd_set));
-    n = select(sock + 1, &fds, NULL, NULL, &tv);
-    if (!n) {
-      printf("受信タイムアウト\n");
-      break;
-    }
+    rcv_timer = select(rcv->socket + 1, &fds, NULL, NULL, &tv);
+    if (!rcv_timer) break;  // タイムアウト
 
-    if (FD_ISSET(sock, &fds)) {  // 受信確認
-      nbytes = read(sock, frame, sizeof(struct can_frame));
+    if (FD_ISSET(rcv->socket, &fds)) {  // 受信確認
+      nbytes = read(rcv->socket, &rcv->frame, sizeof(struct can_frame));
       if (nbytes < 0) {
         perror("read");
         exit(1);
@@ -103,25 +103,8 @@ int can_read(int sock, struct can_frame *frame) {
   return 1;
 }
 
-/* フィルタ設定関数 */
+// フィルタ設定関数
 void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask) {
   filter->can_id   = id;
   filter->can_mask = mask;
-}
-
-// 整数型からバイト列への変換関数
-void itob(int src, char *byte) { memcpy(byte, &src, sizeof(src)); }
-void ltob(long src, char *byte) { memcpy(byte, &src, sizeof(src)); }
-
-// バイト列から整数型への変換関数
-int btoi(char *src, size_t size) {
-  int data = 0x00;
-  memcpy(&data, src, size);
-  return data;
-}
-
-long btol(char *src, size_t size) {
-  int data = 0x00;
-  memcpy(&data, src, size);
-  return data;
 }

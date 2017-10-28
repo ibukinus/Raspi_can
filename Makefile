@@ -6,14 +6,14 @@ OBJS = sample.o can_lib.o
 
 # コンパイラの定義
 CC = gcc
-CFLAGS = -Wall -O2 -std=c11
+CFLAGS = -Wall -O2 -std=c11 -pthread
 
 # 拡張子の定義
 .SUFFIXES: .c .o
 
 # プライマリターゲット
 $(PROGRAM): $(OBJS)
-	$(CC) -o $(PROGRAM) $(OBJS)
+	$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJS)
 
 # サフィックスルール
 .c.o:
