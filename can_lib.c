@@ -46,7 +46,7 @@ int can_init(void) {
 }
 
 //　CANデータ送信関数
-void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
+void can_send(int socket, canid_t id, unsigned char dlc, unsigned char *data) {
   struct can_frame frame;
   long             nbytes;
 
@@ -54,7 +54,7 @@ void can_send(int sock, canid_t id, unsigned char dlc, unsigned char *data) {
   frame.can_dlc = dlc;
   memcpy(frame.data, data, dlc);
 
-  nbytes = write(sock, &frame, sizeof(struct can_frame));
+  nbytes = write(socket, &frame, sizeof(struct can_frame));
 
   if (nbytes < 0) {
     perror("send");
