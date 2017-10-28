@@ -9,13 +9,12 @@
 
 #include <linux/can.h>
 
-// =============================================================================
-// 構造体名 : rcv_frame
-// 機能  : ソケットと受信フレームをまとめたもの
-// =============================================================================
+/**
+ * @brief CAN受信用構造体
+ */
 typedef struct rcv_frame {
-  int              socket;
-  struct can_frame frame;
+  int              socket;  ///< ソケット
+  struct can_frame frame;   ///< 受信フレーム
 } rcv_frame_t;
 
 /**
@@ -62,25 +61,5 @@ int can_read(rcv_frame_t *rcv);
  * @param[in] mask   マスク値
  */
 void set_can_filter(struct can_filter *filter, canid_t id, canid_t mask);
-
-// =============================================================================
-// 関数名 : itob ltob
-// 機能  : バイト列変換関数
-// 引数  : 第1引数 int型、long型データ、第2引数 変換先char型配列へのポインタ
-// 戻り値 : なし
-// =============================================================================
-void itob(int src, char *byte);
-
-void ltob(long src, char *byte);
-
-// =============================================================================
-// 関数名 : btoi btol
-// 機能  : int型、long型データ変換関数
-// 引数  : 第1引数 変換元char型配列へのポインタ、第2引数 データサイズ
-// 戻り値 : 変換先int型、long型データ
-// =============================================================================
-int btoi(char *src, size_t size);
-
-long btol(char *src, size_t size);
 
 #endif
