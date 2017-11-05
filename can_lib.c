@@ -2,6 +2,7 @@
  * @file  can_lib.c
  * @brief CAN通信ライブラリ
  */
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,16 +55,18 @@ void can_send(int socket, canid_t id, unsigned char dlc, unsigned char *data) {
   frame.can_dlc = dlc;
   memcpy(frame.data, data, dlc);
 
-  nbytes = write(socket, &frame, sizeof(struct can_frame));
+  while (1) {
+    nbytes = write(socket, &frame, sizeof(struct can_frame));
+    if (nbytes < 0) {
+      if (errno == ENOBUFS) continue;
+      perror("send");
+    }
 
-  if (nbytes < 0) {
-    perror("send");
-    exit(1);
-  }
-
-  if (nbytes < (signed)sizeof(struct can_frame)) {
-    fprintf(stderr, "送信未完了\n");
-    exit(1);
+    if (nbytes < (signed)sizeof(struct can_frame)) {
+      fprintf(stderr, "送信未完了\n");
+      exit(1);
+    }
+    break;
   }
 }
 
